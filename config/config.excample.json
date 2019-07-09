@@ -1,0 +1,30 @@
+{
+	"jobs":{
+		"add": {
+			"input": {
+				"type": "mongodb",
+				"connection":{
+					"url": "mongodb://localhost",
+					"options": {
+					}
+				},
+				"db": "test",
+				"collection": "example",
+				"op":{
+					"name":"find",
+					"query": {},
+					"options":{
+						"projection": {}
+					}
+				}
+			},
+			"output": {
+				"type": "mongodb",
+				"url": "mongodb://localhost",
+				"db": "test",
+				"collection": "output",
+				"op": "insert"
+			}
+		}
+	}
+}

@@ -18,11 +18,12 @@ const cfg = nconf
 cfg.required([ 'job']);
 
 
-/** extract
- *    {k: v} -> Future a b
- *
+/**
+ *  MongoStream
+ * 	
  */
-const extract = require('./lib/extract/');
+
+const MongoStream = require('./lib/MongoStream');
 
 /** transform
  *    a -> c
