@@ -4,7 +4,7 @@
 const nconf = require('nconf');
 const path = require('path');
 // const heapdump = require('heapdump');
-const { pipe, map } = require('ramda');
+const { pipe, map, tap } = require('ramda');
 
 const cfg = nconf
 	.argv()
@@ -25,24 +25,11 @@ cfg.required(['job']);
 
 const MongoStream = require('./lib/MongoStream');
 
-/** transform
- *    a -> c
- *
+/**
+ * entrance of the program for each job
  */
-const transform = require(`./jobs/${cfg.get('job')}/transform.js`);
 
-/** aggregate
- *    [c] -> d
- *
- */
-// const aggregate = require(`./jobs/${cfg.get('job')}/aggregate.js`);
-
-/** load
- *   Any -> Future a b
- *
- */
-// const loadToCsv = require('./lib/load/csv.js');
-// const loadToMongo = require('./lib/load/mongo.js');
+ const entrance = require(`./jobs/${cfg.get('job')}/${cfg.get('job')}.js`)
 
 // const load = cfg.get(`jobs:${cfg.get('job')}:output:type`) === 'mongodb' ?
 // 	loadToMongo({
@@ -59,8 +46,6 @@ const transform = require(`./jobs/${cfg.get('job')}/transform.js`);
 // 		fields: cfg.get(`jobs:${cfg.get('job')}:output:fields`)
 // 	});
 
-let counter = 0;
-let dataContainer = [];
 
 const stream = new MongoStream({
 	connection: cfg.get(`jobs:${cfg.get('job')}:input:connection`),
@@ -69,23 +54,4 @@ const stream = new MongoStream({
 	op: cfg.get(`jobs:${cfg.get('job')}:input:op`)
 });
 
-stream
-	.on('batch', (docs, done) => {
-		counter += docs.length;
-		console.log(counter)
-		//do the job
-		let tempObj = pipe(
-			transform
-		)(docs);
-
-		dataContainer.push(...tempObj);
-		console.log(dataContainer[0]);
-		//done
-		done();
-	})
-	.on('done', docs => {
-		//get the last batch of data
-		count += docs.length;
-		//do the job
-		dataContainer.push(transform(docs));
-	})
+entrance(stream);
