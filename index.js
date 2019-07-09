@@ -4,7 +4,7 @@
 const nconf = require('nconf');
 const path = require('path');
 // const heapdump = require('heapdump');
-// const { map } = require('ramda');
+const { pipe, map } = require('ramda');
 
 const cfg = nconf
 	.argv()
@@ -74,7 +74,11 @@ stream
 		counter += docs.length;
 		console.log(counter)
 		//do the job
-		dataContainer.push(...transform(docs));
+		let tempObj = pipe(
+			transform
+		)(docs);
+
+		dataContainer.push(...tempObj);
 		console.log(dataContainer[0]);
 		//done
 		done();
