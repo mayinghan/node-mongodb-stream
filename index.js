@@ -29,22 +29,29 @@ const MongoStream = require('./lib/MongoStream');
  * entrance of the program for each job
  */
 
- const entrance = require(`./jobs/${cfg.get('job')}/${cfg.get('job')}.js`)
+const entrance = require(`./jobs/${cfg.get('job')}/${cfg.get('job')}.js`)
 
-// const load = cfg.get(`jobs:${cfg.get('job')}:output:type`) === 'mongodb' ?
-// 	loadToMongo({
-// 		url: cfg.get(`jobs:${cfg.get('job')}:output:url`),
-// 		db: cfg.get(`jobs:${cfg.get('job')}:output:db`),
-// 		collection: cfg.get(`jobs:${cfg.get('job')}:output:collection`),
-// 		key: cfg.get(`jobs:${cfg.get('job')}:output:key`),
-// 		updateKeys: cfg.get(`jobs:${cfg.get('job')}:output:updateKeys`),
-// 		insertKeys: cfg.get(`jobs:${cfg.get('job')}:output:insertKeys`),
-// 		op: cfg.get(`jobs:${cfg.get('job')}:output:op`)
-// 	}) : loadToCsv({
-// 		dir: cfg.get(`jobs:${cfg.get('job')}:output:dir`),
-// 		name: cfg.get(`jobs:${cfg.get('job')}:output:name`),
-// 		fields: cfg.get(`jobs:${cfg.get('job')}:output:fields`)
-// 	});
+/** load
+ *   Any -> Future a b
+ *
+ */
+const loadToCsv = require('./lib/load/csv.js');
+const loadToMongo = require('./lib/load/mongo.js');
+
+const load = cfg.get(`jobs:${cfg.get('job')}:output:type`) === 'mongodb' ?
+	loadToMongo({
+		url: cfg.get(`jobs:${cfg.get('job')}:output:url`),
+		db: cfg.get(`jobs:${cfg.get('job')}:output:db`),
+		collection: cfg.get(`jobs:${cfg.get('job')}:output:collection`),
+		key: cfg.get(`jobs:${cfg.get('job')}:output:key`),
+		updateKeys: cfg.get(`jobs:${cfg.get('job')}:output:updateKeys`),
+		insertKeys: cfg.get(`jobs:${cfg.get('job')}:output:insertKeys`),
+		op: cfg.get(`jobs:${cfg.get('job')}:output:op`)
+	}) : loadToCsv({
+		dir: cfg.get(`jobs:${cfg.get('job')}:output:dir`),
+		name: cfg.get(`jobs:${cfg.get('job')}:output:name`),
+		fields: cfg.get(`jobs:${cfg.get('job')}:output:fields`)
+	});
 
 
 const stream = new MongoStream({
