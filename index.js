@@ -35,7 +35,7 @@ const entrance = require(`./jobs/${cfg.get('job')}/${cfg.get('job')}.js`)
  *   Any -> Future a b
  *
  */
-const loadToCsv = require('./lib/load/csv.js');
+const loadToCsv = require('./lib/load/CsvStream.js');
 const loadToMongo = require('./lib/load/mongo.js');
 
 const load = cfg.get(`jobs:${cfg.get('job')}:output:type`) === 'mongodb' ?
@@ -47,7 +47,7 @@ const load = cfg.get(`jobs:${cfg.get('job')}:output:type`) === 'mongodb' ?
 		updateKeys: cfg.get(`jobs:${cfg.get('job')}:output:updateKeys`),
 		insertKeys: cfg.get(`jobs:${cfg.get('job')}:output:insertKeys`),
 		op: cfg.get(`jobs:${cfg.get('job')}:output:op`)
-	}) : loadToCsv({
+	}) : new loadToCsv({
 		dir: cfg.get(`jobs:${cfg.get('job')}:output:dir`),
 		name: cfg.get(`jobs:${cfg.get('job')}:output:name`),
 		fields: cfg.get(`jobs:${cfg.get('job')}:output:fields`)
@@ -61,4 +61,4 @@ const stream = new MongoStream({
 	op: cfg.get(`jobs:${cfg.get('job')}:input:op`)
 });
 
-entrance(stream);
+entrance(stream, load);
