@@ -3,6 +3,7 @@
 
 const nconf = require('nconf');
 const path = require('path');
+const Future = require('fluture');
 // const heapdump = require('heapdump');
 const { pipe, map, tap } = require('ramda');
 
@@ -36,10 +37,10 @@ const entrance = require(`./jobs/${cfg.get('job')}/${cfg.get('job')}.js`)
  *
  */
 const loadToCsv = require('./lib/load/CsvStream.js');
-const loadToMongo = require('./lib/load/mongo.js');
+const loadToMongo = require('./lib/load/MongoLoadStream');
 
 const load = cfg.get(`jobs:${cfg.get('job')}:output:type`) === 'mongodb' ?
-	loadToMongo({
+	new loadToMongo({
 		url: cfg.get(`jobs:${cfg.get('job')}:output:url`),
 		db: cfg.get(`jobs:${cfg.get('job')}:output:db`),
 		collection: cfg.get(`jobs:${cfg.get('job')}:output:collection`),
@@ -58,7 +59,9 @@ const stream = new MongoStream({
 	connection: cfg.get(`jobs:${cfg.get('job')}:input:connection`),
 	db: cfg.get(`jobs:${cfg.get('job')}:input:db`),
 	collection: cfg.get(`jobs:${cfg.get('job')}:input:collection`),
-	op: cfg.get(`jobs:${cfg.get('job')}:input:op`)
+	op: cfg.get(`jobs:${cfg.get('job')}:input:op`),
+	load
 });
+
 
 entrance(stream, load);

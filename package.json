@@ -12,6 +12,7 @@
   "author": "Yinghan Ma",
   "license": "ISC",
   "dependencies": {
+    "event-stream": "^4.0.1",
     "events": "^3.0.0",
     "fluture": "^11.0.2",
     "mongodb": "^3.2.7",

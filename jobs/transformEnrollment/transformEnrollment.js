@@ -1,30 +1,61 @@
 'use strict';
 
+const Stream = require('stream');
+const Future = require('fluture');
 const { pipe, map, tap } = require('ramda');
-const transform = require('./transform');
+const funcGroup = {
+    transform: require('./transform'),
+    aggregate: require('./aggregate')
+}
 
 let counter = 0;
 let dataContainer = [];
+let result = null;
 
-module.exports = stream => stream
-	.on('batch', (docs, done) => {
-		counter += docs.length;
-		console.log(counter)
-		//do the job
-		let tempObj = pipe(
-			transform,
-			tap((x) => (console.log(`transform done: transfromed ${x.length} documents`))),
-			tap((x) => (console.log(x[0].cla_id)))
-		)(docs);
+const pipeFunc = (docs, func) => {
+    if(func.length === 2) {
+        return pipe(
+            funcGroup[func[0]],
+            tap((x) => (console.log(`${func[0]} done: ${x.length} documents`))),
+            funcGroup[func[1]],
+            tap((x) => (console.log(`${func[1]} done: ${x.length} documents`)))
+        )(docs)
+    } else {
+        return pipe(
+            funcGroup[func[0]],
+            tap((x) => (console.log(`${func[0]} done: ${x.length} documents`))),
+        )(docs)
+    }
+};
 
-		dataContainer.push(...tempObj);
+module.exports = (stream, destination) => {
+    stream
+        .on('batch', (docs, done) => {
+            counter += docs.length;
+            console.log(counter);
 
-		//done
-		done();
-	})
-	.on('done', docs => {
-		//get the last batch of data
-		count += docs.length;
-		//do the job
-		dataContainer.push(transform(docs));
-	});
+            //do the job
+            dataContainer.push(...pipeFunc(docs, ['transform', 'aggregate']));
+            console.log(`${dataContainer.length} items in the buffer`)
+
+            destination.store(dataContainer)
+                .then(() => {
+                    console.log('write done');
+                    done();
+                })
+                .catch(console.error)
+            dataContainer = [];
+        })
+        .on('done', docs => {
+            //get the last batch of data
+            counter += docs.length;
+            //do the job
+            dataContainer.push(...pipeFunc(docs, 'transform'));
+
+            //do final aggregation
+            result = [...pipeFunc(dataContainer, 'aggregate')];
+            dataContainer = null;
+
+            destination.write(result);
+        });
+}
