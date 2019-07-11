@@ -32,11 +32,10 @@ module.exports = (stream, destination) => {
     stream
         .on('batch', (docs, done) => {
             counter += docs.length;
-            console.log(counter);
 
             //do the job
             dataContainer.push(...pipeFunc(docs, ['transform', 'aggregate']));
-            console.log(`${dataContainer.length} items in the buffer`)
+            //console.log(`${dataContainer.length} items in the buffer`)
 
             destination.store(dataContainer)
                 .then(() => {
