@@ -8,6 +8,7 @@ const funcGroup = {
 
 let counter = 0;
 let dataContainer = [];
+let result = [];
 
 const pipeFunc = (docs, func) => {
     if(func.length === 2) {
@@ -31,16 +32,9 @@ module.exports = (stream, destination) => {
             counter += docs.length;
             console.log(counter);
             //do the job
-            dataContainer.push(...pipeFunc(docs, ['transform', 'aggregate']));
+            dataContainer.push(...pipeFunc(docs, ['transform']));
             //console.log(`${dataContainer.length} items in the buffer`)
-
-            destination.store(dataContainer)
-                .then(() => {
-                    console.log('write done');
-                    done();
-                })
-                .catch(console.error)
-            dataContainer = [];
+            done();
         })
         .on('done', docs => {
             //get the last batch of data
@@ -48,15 +42,14 @@ module.exports = (stream, destination) => {
             console.log(counter);
 
             //do the job
-            dataContainer.push(...pipeFunc(docs, ['transform', 'aggregate']));
+            dataContainer.push(...pipeFunc(docs, ['transform']));
 
             //store and close the db
-        
-            destination.final(dataContainer)
+            result = [...pipeFunc(dataContainer, ['aggregate'])];
+            dataContainer = null;
+            destination.final(result)
                 .then(() => {
                     console.log('All job done!!');
                 });
-
-            dataContainer = null;
         });
 }
