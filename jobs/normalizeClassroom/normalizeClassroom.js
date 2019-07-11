@@ -47,7 +47,7 @@ module.exports = (stream, destination) => {
             //store and close the db
             result = [...pipeFunc(dataContainer, ['aggregate'])];
             dataContainer = null;
-            destination.final(result)
+            destination.finish(result)
                 .then(() => {
                     console.log('All job done!!');
                 });
