@@ -25,8 +25,8 @@ const pipeFunc = (docs, func) => {
     }
 };
 
-module.exports = (stream, destination) => {
-    stream
+module.exports = (source, destination) => {
+    source
         .on('batch', (docs, done) => {
             counter += docs.length;
             console.log(counter);
