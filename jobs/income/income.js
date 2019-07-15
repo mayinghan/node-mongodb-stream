@@ -4,11 +4,11 @@ const { pipe, map, tap } = require('ramda');
 const funcGroup = {
 	transform: require('./transform'),
 	aggregate: require('./aggregate')
-}
+};
 
 let counter = 0;
 let dataContainer = [];
-let result = null;
+let result = [];
 
 const pipeFunc = (docs, func) => pipe(
 	funcGroup[func],
@@ -21,8 +21,8 @@ module.exports = (stream, destination) => stream
 		console.log(counter);
 
 		//do the job
-		dataContainer.push(...pipeFunc(docs, 'transform'));
-
+		//dataContainer.push(...pipeFunc(docs, 'transform'));
+		dataContainer = dataContainer.concat(pipeFunc(docs, 'transform'));
 		//done
 		done();
 	})
@@ -30,11 +30,11 @@ module.exports = (stream, destination) => stream
 		//get the last batch of data
 		counter += docs.length;
 		//do the job
-		dataContainer.push(...pipeFunc(docs, 'transform'));
-		console.log(dataContainer[dataContainer.length - 1]);
+		//dataContainer.push(...pipeFunc(docs, 'transform'));
+		dataContainer = dataContainer.concat(pipeFunc(docs, 'transform'));
 
 		//do final aggregation
-		result = [...pipeFunc(dataContainer, 'aggregate')];
+		result = result.concat(pipeFunc(dataContainer, 'aggregate'));
 		dataContainer = null;
 		
 		destination.write(result);
