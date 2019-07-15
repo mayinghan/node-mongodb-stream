@@ -30,7 +30,7 @@ const MongoStream = require('./lib/MongoStream');
  * entrance of the program for each job
  */
 
-const entrance = require(`./jobs/${cfg.get('job')}/${cfg.get('job')}.js`)
+const entrance = require(`./jobs/${cfg.get('job')}/${cfg.get('job')}.js`);
 
 /** load
  *   Any -> Future a b
@@ -63,5 +63,5 @@ const stream = new MongoStream({
 	load
 });
 
-
+load.init();
 entrance(stream, load);
