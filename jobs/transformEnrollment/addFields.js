@@ -23,6 +23,6 @@ const filterStarDate = (item) => {
         }
     }
     return item;
-}
+};
 
 module.exports = compose(objOf('enrollment'), map(assocByTuple), filter(datePointFilter), toPairs, filterStarDate);
